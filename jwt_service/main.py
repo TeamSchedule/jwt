@@ -1,8 +1,12 @@
+import json
+
 import jwt
-from fastapi import FastAPI
+import requests
+from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 
 from .models import Credentials, RefreshToken
+from .settings import USER_SERVICE_HOSTS
 from .tokens import JWTAccess, JWTRefresh
 
 
@@ -13,8 +17,10 @@ app = FastAPI()
 async def obtain_token_pair(credentials: Credentials):
     credentials = credentials.dict()
 
-    # TODO: check cred is valid
-    is_valid = True
+    resp = requests.post(f'http://{USER_SERVICE_HOSTS}/credentials',
+                         data=json.dumps(credentials),
+                         headers={'Content-Type': 'application/json'})
+    is_valid = resp.status_code == status.HTTP_200_OK
 
     if not is_valid:
         return JSONResponse(status_code=401, content={"error_message": "Incorrect login or password"})
@@ -32,7 +38,8 @@ async def refresh_token_pair(refresh_token: RefreshToken):
 
     is_valid = JWTRefresh.validate(token)
     if not is_valid:
-        return JSONResponse(status_code=401, content={"error_message": "Refresh token is not valid"})
+        return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED,
+                            content={"error_message": "Refresh token is not valid"})
 
     payload = jwt.decode(token, options={"verify_signature": False})
 

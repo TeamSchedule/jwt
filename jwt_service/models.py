@@ -2,8 +2,8 @@ from pydantic import BaseModel
 
 
 class Credentials(BaseModel):
-    id: int
     login: str
+    password: str
 
 
 class RefreshToken(BaseModel):
