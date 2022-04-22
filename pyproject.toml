@@ -10,6 +10,7 @@ fastapi = "0.75.1"
 uvicorn = { extras = ["standard"], version = "0.17.6" }
 PyJWT = "2.3.0"
 requests = "2.27.1"
+orjson = "3.6.8"
 
 [tool.poetry.dev-dependencies]
 
