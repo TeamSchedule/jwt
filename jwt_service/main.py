@@ -1,6 +1,5 @@
-import json
-
 import jwt
+import orjson
 import requests
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
@@ -18,7 +17,7 @@ async def obtain_token_pair(credentials: Credentials):
     credentials = credentials.dict()
 
     resp = requests.post(f'http://{USER_SERVICE_HOSTS}/credentials',
-                         data=json.dumps(credentials),
+                         data=orjson.dumps(credentials),
                          headers={'Content-Type': 'application/json'})
     is_valid = resp.status_code == status.HTTP_200_OK
 
