@@ -2,6 +2,7 @@ import jwt
 import orjson
 import requests
 from fastapi import FastAPI, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .models import Credentials, RefreshToken
@@ -11,6 +12,20 @@ from .tokens import JWTAccess, JWTRefresh
 
 app = FastAPI()
 
+# CORS SETTINGS
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.post("/jwt/obtain")
 async def obtain_token_pair(credentials: Credentials):
@@ -19,14 +34,20 @@ async def obtain_token_pair(credentials: Credentials):
     resp = requests.post(f'http://{USER_SERVICE_HOSTS}/credentials',
                          data=orjson.dumps(credentials),
                          headers={'Content-Type': 'application/json'})
+
     is_valid = resp.status_code == status.HTTP_200_OK
 
     if not is_valid:
         return JSONResponse(status_code=401, content={"error_message": "Incorrect login or password"})
 
+    payload = {
+        'iss': orjson.loads(resp.content)['userId'],
+        'login': credentials['login'],
+    }
+
     token_pair = {
-        "access": JWTAccess.gen_token(credentials),
-        "refresh": JWTRefresh.gen_token(credentials),
+        "access": JWTAccess.gen_token(payload),
+        "refresh": JWTRefresh.gen_token(payload),
     }
     return token_pair
 
