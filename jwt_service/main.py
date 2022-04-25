@@ -31,7 +31,7 @@ app.add_middleware(
 async def obtain_token_pair(credentials: Credentials):
     credentials = credentials.dict()
 
-    resp = requests.post(f'http://{USER_SERVICE_HOSTS}/credentials',
+    resp = requests.post(f'http://{USER_SERVICE_HOSTS}/user/credentials',
                          data=orjson.dumps(credentials),
                          headers={'Content-Type': 'application/json'})
 
