@@ -2,7 +2,6 @@ import jwt
 import orjson
 import requests
 from fastapi import FastAPI, status
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .models import Credentials, RefreshToken
@@ -11,20 +10,6 @@ from .tokens import JWTAccess, JWTRefresh
 
 
 app = FastAPI()
-
-# CORS SETTINGS
-origins = [
-    "http://localhost",
-    "http://localhost:3000",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 @app.post("/jwt/obtain")
